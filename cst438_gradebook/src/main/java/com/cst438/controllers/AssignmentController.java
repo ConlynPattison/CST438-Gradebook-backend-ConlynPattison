@@ -74,6 +74,7 @@ public class AssignmentController {
     @Transactional
     public void updateAssignment(@RequestBody AssignmentDTO assignmentDTO,
                                  @PathVariable("id") Integer assignmentId) {
+        // TODO: Do we need to pass in the id path_variable if it will be in the DTO?
         // TODO: Do we want this to be created if it does not exist?
         Assignment assignment = findAssignmentById(assignmentId);
         safeFindCourse(assignmentDTO);
@@ -88,8 +89,7 @@ public class AssignmentController {
     }
 
     private Assignment findAssignmentById(Integer assignmentId) {
-        // TODO: Do we need to pass in the id path_variable if it will be in the DTO?
-        Assignment assignment = assignmentRepository.findById(assignmentId)
+        return assignmentRepository.findById(assignmentId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
                         "Invalid assignment primary key " + assignmentId
@@ -102,7 +102,7 @@ public class AssignmentController {
                         HttpStatus.NOT_FOUND,
                         "Invalid course primary key " + assignmentDTO.courseId()
                 ));
-        if (course.getTitle().equals(assignmentDTO.courseTitle()))
+        if (!course.getTitle().equals(assignmentDTO.courseTitle()))
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
                     "Invalid course title " +
