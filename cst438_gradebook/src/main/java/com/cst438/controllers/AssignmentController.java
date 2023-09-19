@@ -44,6 +44,7 @@ public class AssignmentController {
 
     @GetMapping("/assignment/{id}")
     public AssignmentDTO getAssignment(@PathVariable("id") Integer id) {
+        // TODO: Should this be reliant on the email of the user as well as assignment_id?
         Assignment assignment = assignmentRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
@@ -76,18 +77,27 @@ public class AssignmentController {
     @Transactional
     public void updateAssignment(@RequestBody AssignmentDTO assignmentDTO,
                                  @PathVariable("id") Integer assignmentId) {
-        Course course = safeFindCourse(assignmentDTO);
-
-        return;
+        // TODO: Do we need to pass in the id path_variable if it will be in the DTO?
+        // TODO: Do we want this to be created if it does not exist?
+        Assignment assignment = assignmentRepository.findById(assignmentId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Invalid assignment primary key " + assignmentId
+                ));
+        safeFindCourse(assignmentDTO);
+        assignmentRepository.save(assignment);
     }
 
     @DeleteMapping("/assignment/{id}")
     @Transactional
     public void deleteAssignment(@PathVariable("id") Integer assignmentId) {
-        return;
+        Assignment assignment = assignmentRepository.findById(assignmentId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Invalid assignment primary key " + assignmentId
+                ));
+        assignmentRepository.delete(assignment);
     }
-
-    // TODO create CRUD methods for Assignment
 
     private Course safeFindCourse(AssignmentDTO assignmentDTO) {
         Course course = courseRepository.findById(assignmentDTO.courseId())
