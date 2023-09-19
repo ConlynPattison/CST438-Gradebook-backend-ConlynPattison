@@ -45,12 +45,9 @@ public class AssignmentController {
     @GetMapping("/assignment/{id}")
     public AssignmentDTO getAssignment(@PathVariable("id") Integer id) {
         // TODO: Should this be reliant on the email of the user as well as assignment_id?
-        Assignment assignment = assignmentRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Invalid assignment primary key " + id
-                ));
+        Assignment assignment = findAssignmentById(id);
         Course course = assignment.getCourse();
+
         return new AssignmentDTO(
                 assignment.getId(),
                 assignment.getName(),
@@ -77,13 +74,8 @@ public class AssignmentController {
     @Transactional
     public void updateAssignment(@RequestBody AssignmentDTO assignmentDTO,
                                  @PathVariable("id") Integer assignmentId) {
-        // TODO: Do we need to pass in the id path_variable if it will be in the DTO?
         // TODO: Do we want this to be created if it does not exist?
-        Assignment assignment = assignmentRepository.findById(assignmentId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Invalid assignment primary key " + assignmentId
-                ));
+        Assignment assignment = findAssignmentById(assignmentId);
         safeFindCourse(assignmentDTO);
         assignmentRepository.save(assignment);
     }
@@ -91,12 +83,17 @@ public class AssignmentController {
     @DeleteMapping("/assignment/{id}")
     @Transactional
     public void deleteAssignment(@PathVariable("id") Integer assignmentId) {
+        Assignment assignment = findAssignmentById(assignmentId);
+        assignmentRepository.delete(assignment);
+    }
+
+    private Assignment findAssignmentById(Integer assignmentId) {
+        // TODO: Do we need to pass in the id path_variable if it will be in the DTO?
         Assignment assignment = assignmentRepository.findById(assignmentId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
                         "Invalid assignment primary key " + assignmentId
                 ));
-        assignmentRepository.delete(assignment);
     }
 
     private Course safeFindCourse(AssignmentDTO assignmentDTO) {
