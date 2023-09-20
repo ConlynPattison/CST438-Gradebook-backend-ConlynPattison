@@ -1,13 +1,8 @@
 package com.cst438;
 
-import com.cst438.domain.Assignment;
-import com.cst438.domain.AssignmentDTO;
-import com.cst438.domain.AssignmentGrade;
-import com.cst438.domain.AssignmentRepository;
+import com.cst438.domain.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,9 +11,10 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.BDDMockito.given;
+import java.sql.Date;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -29,6 +25,9 @@ public class JunitTestAssignment {
 
     @Autowired
     private AssignmentRepository assignmentRepository;
+
+    @Autowired
+    private CourseRepository courseRepository;
 
     private static MockHttpServletResponse response;
 
@@ -47,7 +46,6 @@ public class JunitTestAssignment {
         // Check the assignmentDTO[] content
         AssignmentDTO[] resultContent = fromJsonString(response.getContentAsString(), AssignmentDTO[].class);
         assertEquals(resultContent[0],
-                // 1	2021-09-01	'db design'	31045
                 new AssignmentDTO(
                         1,
                         "db design",
@@ -55,7 +53,6 @@ public class JunitTestAssignment {
                         "CST 363 - Introduction to Database Systems",
                         31045
                 ));
-
     }
 
     @Test
@@ -72,7 +69,6 @@ public class JunitTestAssignment {
 
         // Check the assignmentDTO content
         assertEquals(fromJsonString(response.getContentAsString(), AssignmentDTO.class),
-                // 1	2021-09-01	'db design'	31045
                 new AssignmentDTO(
                         1,
                         "db design",
@@ -159,7 +155,34 @@ public class JunitTestAssignment {
 
     @Test
     public void deleteAssignment() throws Exception {
-        
+        // Create a new Assignment to be deleted
+        Course c = courseRepository.findById(31045).orElseThrow(() ->
+                new RuntimeException("Course id " + 31045 + " not found")
+        );
+        Assignment a = new Assignment();
+        a.setName("to be deleted");
+        a.setDueDate(Date.valueOf("2021-09-01"));
+        a.setCourse(c);
+
+        int deleteId = assignmentRepository.save(a).getId();
+
+        // Validate the existence of the Assignment
+        assignmentRepository.findById(deleteId).orElseThrow(() ->
+                new RuntimeException("Assignment id " + deleteId + " not found")
+        );
+
+        // Perform the delete by id
+        response = mvc.perform(MockMvcRequestBuilders
+                .delete("/assignment/" + deleteId)
+                .accept(MediaType.APPLICATION_JSON))
+                .andReturn().getResponse();
+
+        // Check response status
+        assertEquals(200, response.getStatus());
+
+        // Validate the Assignment no longer exists
+        Optional<Assignment> assignmentOptional = assignmentRepository.findById(deleteId);
+        assertTrue(assignmentOptional.isEmpty());
     }
 
     // TODO: Pull this out (being used in two different Test suites
