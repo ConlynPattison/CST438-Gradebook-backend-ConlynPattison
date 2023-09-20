@@ -20,6 +20,9 @@ public class AssignmentController {
     @Autowired
     CourseRepository courseRepository;
 
+    @Autowired
+    AssignmentGradeRepository assignmentGradeRepository;
+
     @GetMapping("/assignment")
     public AssignmentDTO[] getAllAssignmentsForInstructor() {
         // get all assignments for this instructor
@@ -84,9 +87,29 @@ public class AssignmentController {
 
     @DeleteMapping("/assignment/{id}")
     @Transactional
-    public void deleteAssignment(@PathVariable("id") Integer assignmentId) {
+    public void deleteAssignment(@PathVariable("id") Integer assignmentId,
+                                 @RequestParam(name = "force", required = false) Boolean force) {
         Assignment assignment = findAssignmentById(assignmentId);
-        assignmentRepository.delete(assignment);
+
+        // Check if the assignment has grades
+        boolean hasGrades = false;
+        List<Enrollment> students = assignment.getCourse().getEnrollments();
+        for (Enrollment student : students) {
+            // does student have a grade for this assignment
+            AssignmentGrade ag = assignmentGradeRepository.findByAssignmentIdAndStudentEmail(assignmentId, student.getStudentEmail());
+            if (ag != null) {
+                hasGrades = true;
+                break;
+            }
+        }
+
+        if (!hasGrades || force != null && force)
+            assignmentRepository.delete(assignment);
+        else
+            System.out.println("WARNING: Assignment id " +
+                    assignmentId +
+                    " delete attempted with Grades saved\n" +
+                    "use ?force=true option to continue operation");
     }
 
     private Assignment findAssignmentById(Integer assignmentId) {

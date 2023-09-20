@@ -171,9 +171,9 @@ public class JunitTestAssignment {
                 new RuntimeException("Assignment id " + deleteId + " not found")
         );
 
-        // Perform the delete by id
+        // Perform the delete by id with force option
         response = mvc.perform(MockMvcRequestBuilders
-                .delete("/assignment/" + deleteId)
+                .delete("/assignment/" + deleteId + "?force=true")
                 .accept(MediaType.APPLICATION_JSON))
                 .andReturn().getResponse();
 
