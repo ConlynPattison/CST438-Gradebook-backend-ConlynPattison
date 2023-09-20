@@ -77,7 +77,11 @@ public class AssignmentController {
         // TODO: Do we need to pass in the id path_variable if it will be in the DTO?
         // TODO: Do we want this to be created if it does not exist?
         Assignment assignment = findAssignmentById(assignmentId);
-        safeFindCourse(assignmentDTO);
+        Course course = safeFindCourse(assignmentDTO);
+
+        assignment.setCourse(course);
+        assignment.setDueDate(Date.valueOf(assignmentDTO.dueDate()));
+        assignment.setName(assignmentDTO.assignmentName());
         assignmentRepository.save(assignment);
     }
 
