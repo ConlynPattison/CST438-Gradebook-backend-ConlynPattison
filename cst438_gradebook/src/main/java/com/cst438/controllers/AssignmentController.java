@@ -3,15 +3,12 @@ package com.cst438.controllers;
 import com.cst438.domain.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.transaction.Transactional;
-import java.net.http.HttpTimeoutException;
 import java.sql.Date;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @CrossOrigin

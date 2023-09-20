@@ -116,10 +116,6 @@ public class JunitTestGradebook {
 
 	}
 
-	/*
-	* Add, Modify, Delete Assignments
-	*/
-
 	private static String asJsonString(final Object obj) {
 		try {
 
