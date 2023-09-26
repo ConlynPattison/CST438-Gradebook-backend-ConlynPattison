@@ -170,6 +170,8 @@ public class AssignmentController {
                         HttpStatus.NOT_FOUND,
                         "Invalid course primary key " + assignmentDTO.courseId()
                 ));
+        // Note: Removed check for matching course id to title for easier creation/update
+        /*
         if (!course.getTitle().equals(assignmentDTO.courseTitle()))
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
@@ -178,6 +180,7 @@ public class AssignmentController {
                             " for course primary key " +
                             assignmentDTO.courseId()
             );
+         */
         return course;
     }
 }
