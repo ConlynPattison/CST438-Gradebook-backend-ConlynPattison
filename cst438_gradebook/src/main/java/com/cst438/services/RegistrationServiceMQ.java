@@ -8,6 +8,7 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +33,11 @@ public class RegistrationServiceMQ implements RegistrationService {
 
 
     Queue registrationQueue = new Queue("registration-queue", true);
+
+    @Bean
+    Queue createQueue() {
+        return new Queue("gradebook-queue");
+    }
 
     /*
      * Receive message for student added to course
