@@ -1,12 +1,5 @@
 package com.cst438;
 
-import static org.assertj.core.api.Assertions.*;
-
-import java.sql.Date;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
 import com.cst438.domain.Assignment;
 import com.cst438.domain.AssignmentRepository;
 import com.cst438.domain.Course;
@@ -19,8 +12,13 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.expression.ExpressionException;
-import org.springframework.expression.spel.ast.Assign;
+
+import java.sql.Date;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /*
  * This example shows how to use selenium testing using the web driver
@@ -39,7 +37,7 @@ import org.springframework.expression.spel.ast.Assign;
 @SpringBootTest
 public class EndToEndTestSubmitGrades {
 
-    public static final String CHROME_DRIVER_FILE_LOCATION = "/Users/conlynpattison/Desktop/chromedriver";
+    public static final String CHROME_DRIVER_FILE_LOCATION = "C:\\Users\\conly\\OneDrive\\Desktop\\chromedriver.exe";
 
     public static final String URL = "http://localhost:3000";
     public static final int SLEEP_DURATION = 1000; // 1 second.
@@ -246,9 +244,8 @@ public class EndToEndTestSubmitGrades {
 
     @Test
     public void updateAssignmentTest() throws Exception {
-        // TODO: create + run function to manually create a new assignment
         // init variables
-        final String ASSIGNMENT_NAME = "update assignment name";
+        String NEW_NAME = "changed assignment";
 
         System.setProperty("webdriver.chrome.driver", CHROME_DRIVER_FILE_LOCATION);
         WebDriver driver = new ChromeDriver();
@@ -259,38 +256,103 @@ public class EndToEndTestSubmitGrades {
         driver.get(URL);
         Thread.sleep(SLEEP_DURATION);
 
-        // grab the created assignment's row and click its 'edit' a tag
+        try {
+//            createAssignment();
+//            Thread.sleep(SLEEP_DURATION);
+//            driver.navigate().refresh();
 
+            // grab the created assignment's row and click its 'edit' a tag
+            WebElement editLink = driver.findElement(By.xpath("//tr[td[text()='db design']][1]/td/a[text()='Edit']"));
+            editLink.click();
+            Thread.sleep(SLEEP_DURATION);
 
-        // save the original data for the assignment
+            // save the original data for the assignment
+            WebElement nameElement = driver.findElement(By.xpath("//input[@name='name']"));
 
-        // grab the values for each of the inputs (name & due date)
+            String originalName = nameElement.getAttribute("value");
 
-        // change each of these values
+            // grab the values for each of the inputs (name & due date)
+            while (!nameElement.getAttribute("value").equals("")) {
+                nameElement.sendKeys(Keys.BACK_SPACE);
+            }
+            nameElement.sendKeys(NEW_NAME);
 
-        // click update button and validate message
+            // click update button and validate message
+            driver.findElement(By.id("sgrade")).click();
+            Thread.sleep(SLEEP_DURATION);
 
-        // TODO: reload page if possible, otherwise return here from home
+            assertThat(driver.findElement(By.xpath("//h4")).getText())
+                    .withFailMessage("Message should announce success state")
+                    .startsWith("Successfully updated course");
 
-        // validate the information has changed
+            // TODO: reload page if possible, otherwise return here from home
+            driver.navigate().refresh();
+            Thread.sleep(SLEEP_DURATION);
 
-        // change the information back to original data
+            // validate the information has changed
+            nameElement = driver.findElement(By.xpath("//input[@name='name']"));
+            assertThat(nameElement.getAttribute("value"))
+                    .withFailMessage("Changed name was not saved")
+                    .isEqualTo(NEW_NAME);
+
+            // change the information back to original data
+            while (!nameElement.getAttribute("value").equals("")) {
+                nameElement.sendKeys(Keys.BACK_SPACE);
+            }
+            nameElement.sendKeys(originalName);
+            driver.findElement(By.id("sgrade")).click();
+
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            driver.close();
+        }
     }
 
     @Test
     public void deleteAssignmentTest() throws Exception {
-        // TODO: create + run function to manually create a new assignment
         // init variables
+        String DELETE_NAME = "requirements";
+
+        System.setProperty("webdriver.chrome.driver", CHROME_DRIVER_FILE_LOCATION);
+        WebDriver driver = new ChromeDriver();
+        // Puts an Implicit wait for 10 seconds before throwing exception
+        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
 
         // starting from home
+        driver.get(URL);
+        Thread.sleep(SLEEP_DURATION);
 
-        // grab the created assignment's row and click delete (no grades should exist yet)
+        try {
+            driver.findElement(By.id("force")).click();
 
-        // check that we cannot find that row
+            // grab the created assignment's row and click delete (no grades should exist yet)
+            WebElement deleteButton = driver.findElement(By.xpath("//tr[td[text()='" + DELETE_NAME + "']][1]/td/button"));
+            deleteButton.click();
 
-        // refresh the page (to re-fetch the data from a mount)
+            Thread.sleep(SLEEP_DURATION);
 
-        // again, check that we cannot find that row
+            // check that we cannot find that row
+            List<WebElement> foundElements = driver.findElements(By.xpath("//tr[td[text()='" + DELETE_NAME + "']]"));
+            assertThat(foundElements)
+                    .withFailMessage("Should not have found deleted element")
+                    .isNullOrEmpty();
+
+            // refresh the page (to re-fetch the data from a mount)
+            driver.navigate().refresh();
+            Thread.sleep(SLEEP_DURATION);
+
+            // again, check that we cannot find that row
+            List<WebElement> foundElementsRefresh = driver.findElements(By.xpath("//tr[td[text()='" + DELETE_NAME + "']]"));
+            assertThat(foundElementsRefresh)
+                    .withFailMessage("Should not have found deleted element")
+                    .isNullOrEmpty();
+
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            driver.close();
+        }
     }
 
     private int createAssignment() {
