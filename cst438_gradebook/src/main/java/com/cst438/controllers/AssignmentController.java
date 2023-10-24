@@ -23,7 +23,7 @@ public class AssignmentController {
     @Autowired
     AssignmentGradeRepository assignmentGradeRepository;
 
-    private final String instructorEmail = "dwisneski@csumb.edu";
+    // FIXME: private final String instructorEmail = "dwisneski@csumb.edu";
 
     @GetMapping("/assignment")
     public AssignmentDTO[] getAllAssignmentsForInstructor() {
