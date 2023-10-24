@@ -1,5 +1,5 @@
 
-INSERT INTO course (year, semester, course_id, title, instructor)  VALUES 
+INSERT INTO course (year, semester, course_id, title, instructor)  VALUES
 (2020,'Fall',30157,'BUS 203 - Financial Accounting','cchou@csumb.edu'),
 (2020,'Fall',30163,'BUS 306 - Fundamentals of Marketing','anariswari@csumb.edu'),
 (2020,'Fall',30291,'BUS 304 - Business Communication, Pro-seminar & Critical Thinking','kposteher@csumb.edu'),
@@ -38,3 +38,10 @@ insert into assignment_grade (score, assignment_id, enrollment_id) values
 (93, 3, 6),
 (94, 4, 6)
 ;
+
+insert into user_table
+(username, email, password, role) values
+('test', 'dwisneski@csumb.edu', '$2a$10$NVM0n8ElaRgg7zWO1CxUdei7vWoPg91Lz2aYavh9.f9q0e4bRadue','USER'),
+('admin', 'admin@csumb.edu', '$2a$10$8cjz47bjbR4Mn8GMg9IZx.vyjhLXR/SKKMSZ9.mP9vpMu0ssKi8GW' , 'ADMIN')
+;
+

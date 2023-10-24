@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.transaction.Transactional;
+import java.security.Principal;
 import java.sql.Date;
 import java.util.List;
 
@@ -25,9 +26,12 @@ public class AssignmentController {
 
     // FIXME: private final String instructorEmail = "dwisneski@csumb.edu";
 
+    // principal to get username -> User repository to get email
+
     @GetMapping("/assignment")
     public AssignmentDTO[] getAllAssignmentsForInstructor() {
         // get all assignments for this instructor
+        String instructorEmail = getInstructorEmail("");
         List<Assignment> assignments = assignmentRepository.findByEmail(instructorEmail);
         AssignmentDTO[] result = new AssignmentDTO[assignments.size()];
         for (int i = 0; i < assignments.size(); i++) {
@@ -47,8 +51,9 @@ public class AssignmentController {
     public AssignmentDTO getAssignment(@PathVariable("id") Integer id) {
         Assignment assignment = findAssignmentById(id);
         Course course = assignment.getCourse();
+        String instructorEmail = getInstructorEmail("");
 
-        if (!isAuthorized(id))
+        if (!isAuthorized(id, instructorEmail))
             throw new ResponseStatusException(
                     HttpStatus.UNAUTHORIZED,
                     "User " +
@@ -68,8 +73,9 @@ public class AssignmentController {
     @Transactional
     public int createAssignment(@RequestBody AssignmentDTO assignmentDTO) {
         Course course = safeFindCourse(assignmentDTO);
+        String instructorEmail = getInstructorEmail("");
 
-        if (!isAuthorized(course))
+        if (!isAuthorized(course, instructorEmail))
             throw new ResponseStatusException(
                     HttpStatus.UNAUTHORIZED,
                     "User " +
@@ -93,7 +99,9 @@ public class AssignmentController {
         Assignment assignment = findAssignmentById(assignmentId);
         Course course = safeFindCourse(assignmentDTO);
 
-        if (!isAuthorized(assignmentId))
+        String instructorEmail = getInstructorEmail("");
+
+        if (!isAuthorized(assignmentId, instructorEmail))
             throw new ResponseStatusException(
                     HttpStatus.UNAUTHORIZED,
                     "User " +
@@ -109,10 +117,12 @@ public class AssignmentController {
 
     @DeleteMapping("/assignment/{id}")
     @Transactional
-    public void deleteAssignment(@PathVariable("id") Integer assignmentId,
+    public void deleteAssignment(Principal principal, @PathVariable("id") Integer assignmentId,
                                  @RequestParam(name = "force", required = false) Boolean force) {
         Assignment assignment = findAssignmentById(assignmentId);
-        if (!isAuthorized(assignment.getId()))
+        String instructorEmail = getInstructorEmail("");
+
+        if (!isAuthorized(assignment.getId(), instructorEmail))
             throw new ResponseStatusException(
                     HttpStatus.UNAUTHORIZED,
                     "User " +
@@ -148,12 +158,16 @@ public class AssignmentController {
         }
     }
 
-    private boolean isAuthorized(int assignmentId) {
+    private boolean isAuthorized(int assignmentId, String instructorEmail) {
         return assignmentRepository.findByEmailAndAssignmentId(instructorEmail, assignmentId) != null;
     }
 
-    private boolean isAuthorized(Course course) {
+    private boolean isAuthorized(Course course, String instructorEmail) {
         return course.getInstructor().equals(instructorEmail);
+    }
+
+    private String getInstructorEmail(String token) {
+        return "";
     }
 
     private Assignment findAssignmentById(Integer assignmentId) {
@@ -170,17 +184,6 @@ public class AssignmentController {
                         HttpStatus.NOT_FOUND,
                         "Invalid course primary key " + assignmentDTO.courseId()
                 ));
-        // Note: Removed check for matching course id to title for easier creation/update
-        /*
-        if (!course.getTitle().equals(assignmentDTO.courseTitle()))
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Invalid course title " +
-                            assignmentDTO.courseTitle() +
-                            " for course primary key " +
-                            assignmentDTO.courseId()
-            );
-         */
         return course;
     }
 }
