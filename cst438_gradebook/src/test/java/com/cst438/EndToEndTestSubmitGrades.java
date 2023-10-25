@@ -38,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 public class EndToEndTestSubmitGrades {
 
-    public static final String CHROME_DRIVER_FILE_LOCATION = "/Users/conlynpattison/Desktop/chromedriver";
+    public static final String CHROME_DRIVER_FILE_LOCATION = "C:\\Users\\conly\\OneDrive\\Desktop\\chromedriver.exe";
 
     public static final String URL = "http://localhost:3000";
     public static final int SLEEP_DURATION = 1000; // 1 second.
