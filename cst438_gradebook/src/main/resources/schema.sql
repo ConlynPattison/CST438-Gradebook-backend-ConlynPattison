@@ -34,3 +34,11 @@ CREATE TABLE assignment_grade (
   FOREIGN KEY (enrollment_id) REFERENCES enrollment (id) on delete cascade,
   FOREIGN KEY (assignment_id) REFERENCES assignment (id) on delete cascade
 );
+
+create table user_table (
+    id identity primary key,
+    username varchar(25) unique,
+    email varchar(25) unique,
+    password varchar(100),
+    role varchar(25)
+);

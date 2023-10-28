@@ -14,6 +14,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import java.sql.Date;
 import java.util.Optional;
 
+import static com.cst438.utils.Authentication.authJWT;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
@@ -31,12 +32,14 @@ public class JunitTestAssignment {
 
     private static MockHttpServletResponse response;
 
+
     @Test
     public void getAllAssignmentsForInstructor() throws Exception {
         // Perform the fetch all
         response = mvc.perform(MockMvcRequestBuilders
-                .get("/assignment")
-                .accept(MediaType.APPLICATION_JSON))
+                        .get("/assignment")
+                        .header("Authorization", authJWT)
+                        .accept(MediaType.APPLICATION_JSON))
                 .andReturn()
                 .getResponse();
 
@@ -59,8 +62,9 @@ public class JunitTestAssignment {
     public void getAssignment() throws Exception {
         // Perform the fetch single
         response = mvc.perform(MockMvcRequestBuilders
-                .get("/assignment/1")
-                .accept(MediaType.APPLICATION_JSON))
+                        .get("/assignment/1")
+                        .header("Authorization", authJWT)
+                        .accept(MediaType.APPLICATION_JSON))
                 .andReturn()
                 .getResponse();
 
@@ -88,10 +92,11 @@ public class JunitTestAssignment {
                 31045
         );
         response = mvc.perform(MockMvcRequestBuilders
-                .post("/assignment")
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .content(asJsonString(assignmentDTO)))
+                        .post("/assignment")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", authJWT)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(assignmentDTO)))
                 .andReturn()
                 .getResponse();
 
@@ -108,8 +113,9 @@ public class JunitTestAssignment {
 
         // Perform the fetch single
         response = mvc.perform(MockMvcRequestBuilders
-                .get("/assignment/" + updateId)
-                .accept(MediaType.APPLICATION_JSON))
+                        .get("/assignment/" + updateId)
+                        .header("Authorization", authJWT)
+                        .accept(MediaType.APPLICATION_JSON))
                 .andReturn()
                 .getResponse();
 
@@ -135,10 +141,11 @@ public class JunitTestAssignment {
                 31045
         );
         response = mvc.perform(MockMvcRequestBuilders
-                .put("/assignment/" + updateId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .content(asJsonString(assignmentDTO)))
+                        .put("/assignment/" + updateId)
+                        .header("Authorization", authJWT)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(assignmentDTO)))
                 .andReturn()
                 .getResponse();
 
@@ -173,8 +180,9 @@ public class JunitTestAssignment {
 
         // Perform the delete by id with force option
         response = mvc.perform(MockMvcRequestBuilders
-                .delete("/assignment/" + deleteId + "?force=true")
-                .accept(MediaType.APPLICATION_JSON))
+                        .delete("/assignment/" + deleteId + "?force=true")
+                        .header("Authorization", authJWT)
+                        .accept(MediaType.APPLICATION_JSON))
                 .andReturn().getResponse();
 
         // Check response status

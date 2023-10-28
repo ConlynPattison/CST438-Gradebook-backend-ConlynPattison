@@ -4,6 +4,7 @@ import com.cst438.domain.Assignment;
 import com.cst438.domain.AssignmentRepository;
 import com.cst438.domain.Course;
 import com.cst438.domain.CourseRepository;
+import com.cst438.utils.Authentication;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
@@ -50,6 +51,9 @@ public class EndToEndTestSubmitGrades {
     @Autowired
     public CourseRepository courseRepository;
 
+    @Autowired
+    public Authentication authentication;
+
 
     @Test
     public void addCourseTest() throws Exception {
@@ -83,6 +87,8 @@ public class EndToEndTestSubmitGrades {
              * locate the <td> element for assignment title 'db design'
              *
              */
+            authentication.authenticateForTest(driver);
+            Thread.sleep(SLEEP_DURATION);
 
             List<WebElement> elements = driver.findElements(By.xpath("//td"));
             boolean found = false;
@@ -186,6 +192,10 @@ public class EndToEndTestSubmitGrades {
         Thread.sleep(SLEEP_DURATION);
 
         try {
+            authentication.authenticateForTest(driver);
+
+            Thread.sleep(SLEEP_DURATION);
+
             // use the Link tag to change to the addAssignment page
             // a tag, href="/addAssignment"
             WebElement element = driver.findElement(By.id("add-assignment"));
@@ -260,6 +270,8 @@ public class EndToEndTestSubmitGrades {
 //            createAssignment();
 //            Thread.sleep(SLEEP_DURATION);
 //            driver.navigate().refresh();
+            authentication.authenticateForTest(driver);
+            Thread.sleep(SLEEP_DURATION);
 
             // grab the created assignment's row and click its 'edit' a tag
             WebElement editLink = driver.findElement(By.xpath("//tr[td[text()='db design']][1]/td/a[text()='Edit']"));
@@ -324,6 +336,9 @@ public class EndToEndTestSubmitGrades {
         Thread.sleep(SLEEP_DURATION);
 
         try {
+            authentication.authenticateForTest(driver);
+            Thread.sleep(SLEEP_DURATION);
+
             driver.findElement(By.id("force")).click();
 
             // grab the created assignment's row and click delete (no grades should exist yet)
